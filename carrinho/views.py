@@ -42,12 +42,12 @@ def add_carrinho(request, produto_id):
 def remove_carrinho(request, produto_id):
     carrinho = Carrinho.objects.get(carro_id=_carrinho_id(request))
     produto = get_object_or_404(Produto, id=produto_id)
-    carrinho_item = CarrinhoItem.objects.get(produto=produto, carrinho=carrinho)
-    if carrinho_item.quantidade > 1:
-        carrinho_item -= 1
-        carrinho_item.save()
+    carrinho_item_dec = CarrinhoItem.objects.get(produto=produto, carrinho=carrinho)
+    if carrinho_item_dec.quantidade > 1:
+        carrinho_item_dec.quantidade -= 1
+        carrinho_item_dec.save()
     else:
-        carrinho_item.delete()
+        carrinho_item_dec.delete()
     return redirect('carrinho')
 
 

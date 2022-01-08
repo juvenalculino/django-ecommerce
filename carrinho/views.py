@@ -1,4 +1,4 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from loja.models import Produto
 from .models import Carrinho, CarrinhoItem
 # Create your views here.
@@ -37,6 +37,18 @@ def add_carrinho(request, produto_id):
     #exit()
     return redirect('carrinho')
 
+
+#2
+def remove_carrinho(request, produto_id):
+    carrinho = Carrinho.objects.get(carro_id=_carrinho_id(request))
+    produto = get_object_or_404(Produto, id=produto_id)
+    carrinho_item = CarrinhoItem.objects.get(produto=produto, carrinho=carrinho)
+    if carrinho_item.quantidade > 1:
+        carrinho_item -= 1
+        carrinho_item.save()
+    else:
+        carrinho_item.delete()
+    return redirect('carrinho')
 
 
 #1

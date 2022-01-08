@@ -21,13 +21,14 @@
 </tr>
 </thead>
 <tbody>
+{% for carrinho_item in carrinho_items %}
 <tr>
 	<td>
 		<figure class="itemside align-items-center">
-			<div class="aside"><img src="{% static './images/items/11.jpg' %}" class="img-sm"></div>
+			<div class="aside"><img src="{{ carrinho_item.produto.imagem.url }}" class="img-sm"></div>
 			<figcaption class="info">
-				<a href="#" class="title text-dark">Camera Canon EOS M50 Kit</a>
-				<p class="text-muted small">Matrix: 25 Mpx <br> Brand: Canon</p>
+				<a href="#" class="title text-dark">{{ carrinho_item.produto.nome_produto }}</a>
+				<p class="text-muted small">Cor: 25 Mpx <br> Tamanho: Canon</p>
 			</figcaption>
 		</figure>
 	</td>
@@ -36,93 +37,27 @@
 					<div class="col"> 
 						<div class="input-group input-spinner">
 							<div class="input-group-prepend">
-							<button class="btn btn-light" type="button" id="button-plus"> <i class="fa fa-minus"></i> </button>
+							<a href="{% url 'add_cart' carrinho_item.produto.id %}" class="btn btn-light" type="button" id="button-plus"> <i class="fa fa-minus"></i> </a>
 							</div>
-							<input type="text" class="form-control"  value="1">
+							<input type="text" class="form-control"  value="{{carrinho_item.quantidade}}">
 							<div class="input-group-append">
-							<button class="btn btn-light" type="button" id="button-minus"> <i class="fa fa-plus"></i> </button>
+							<a href="{% url 'add_cart' carrinho_item.produto.id %}" class="btn btn-light" type="button" id="button-minus"> <i class="fa fa-plus"></i> </a>
 							</div>
 						</div> <!-- input-group.// -->
 					</div> <!-- col.// -->
 	</td>
 	<td> 
 		<div class="price-wrap"> 
-			<var class="price">$1156.00</var> 
-			<small class="text-muted"> $315.20 each </small> 
+			<var class="price">R${{carrinho_item.sub_total}}.00</var> 
+			<small class="text-muted"> R${{carrinho_item.produto.preco}} un </small> 
 		</div> <!-- price-wrap .// -->
 	</td>
 	<td class="text-right"> 
 	<a href="" class="btn btn-danger"> Remove</a>
 	</td>
 </tr>
-<tr>
-	<td>
-		<figure class="itemside align-items-center">
-			<div class="aside"><img src="{% static './images/items/10.jpg' %}" class="img-sm"></div>
-			<figcaption class="info">
-				<a href="#" class="title text-dark">ADATA Premier ONE microSDXC</a>
-				<p class="text-muted small">Size: 256 GB  <br> Brand: ADATA </p>
-			</figcaption>
-		</figure>
-	</td>
-	<td> 
-		<!-- col.// -->
-					<div class="col"> 
-						<div class="input-group input-spinner">
-							<div class="input-group-prepend">
-							<button class="btn btn-light" type="button" id="button-plus"> <i class="fa fa-minus"></i> </button>
-							</div>
-							<input type="text" class="form-control"  value="1">
-							<div class="input-group-append">
-							<button class="btn btn-light" type="button" id="button-minus"> <i class="fa fa-plus"></i> </button>
-							</div>
-						</div> <!-- input-group.// -->
-					</div> <!-- col.// -->
-	</td>
-	<td> 
-		<div class="price-wrap"> 
-			<var class="price">$149.97</var> 
-			<small  class="text-muted"> $75.00 each </small>  
-		</div> <!-- price-wrap .// -->
-	</td>
-	<td class="text-right"> 
-	<a href="" class="btn btn-danger"> Remove</a>
-	</td>
-</tr>
-<tr>
-	<td>
-		<figure class="itemside align-items-center">
-			<div class="aside"><img src="{% static './images/items/9.jpg' %}" class="img-sm"></div>
-			<figcaption class="info">
-				<a href="#" class="title text-dark">Logitec headset for gaming</a>
-				<p class="small text-muted">Version: CUH-ZCT2E  <br> Brand: Sony</p>
-			</figcaption>
-		</figure>
-	</td>
-	<td> 
-		<!-- col.// -->
-					<div class="col"> 
-						<div class="input-group input-spinner">
-							<div class="input-group-prepend">
-							<button class="btn btn-light" type="button" id="button-plus"> <i class="fa fa-minus"></i> </button>
-							</div>
-							<input type="text" class="form-control"  value="1">
-							<div class="input-group-append">
-							<button class="btn btn-light" type="button" id="button-minus"> <i class="fa fa-plus"></i> </button>
-							</div>
-						</div> <!-- input-group.// -->
-					</div> <!-- col.// -->
-	</td>
-	<td> 
-		<div class="price-wrap"> 
-			<var class="price">$98.00</var> 
-			<small class="text-muted"> $578.00 each</small> 
-		</div> <!-- price-wrap .// -->
-	</td>
-	<td class="text-right"> 
-		<a href="" class="btn btn-danger"> Remove</a>
-	</td>
-</tr>
+{% endfor  %}
+
 </tbody>
 </table>
 </div> <!-- card.// -->
@@ -133,16 +68,16 @@
 		<div class="card">
 		<div class="card-body">
 			<dl class="dlist-align">
-			  <dt>Total price:</dt>
-			  <dd class="text-right">$69.97</dd>
+			  <dt>SubTotal:</dt>
+			  <dd class="text-right">R${{total}}.00</dd>
 			</dl>
 			<dl class="dlist-align">
-			  <dt>Tax:</dt>
-			  <dd class="text-right"> $10.00</dd>
+			  <dt>Taxa:</dt>
+			  <dd class="text-right"> R${{taxa}}</dd>
 			</dl>
 			<dl class="dlist-align">
 			  <dt>Total:</dt>
-			  <dd class="text-right text-dark b"><strong>$59.97</strong></dd>
+			  <dd class="text-right text-dark b"><strong>R${{total_geral}}</strong></dd>
 			</dl>
 			<hr>
 			<p class="text-center mb-3">

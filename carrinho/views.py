@@ -29,7 +29,7 @@ def add_carrinho(request, produto_id):
     except CarrinhoItem.DoesNotExist:
         carrinho_item = CarrinhoItem.objects.create(
             produto = produto,
-            quantidadde = 1,
+            quantidade = 1,
             carrinho = carrinho,
         )
         carrinho_item.save()

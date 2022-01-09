@@ -145,7 +145,7 @@
                             <del class="price-old">${{produto.preco}}</del>
                         </div> <!-- price-wrap.// -->
                     </div>
-                    <a href="#" class="btn btn-block btn-primary">Add Carrinho </a>
+                    <a href="{% url 'add_cart' produto.id %}" class="btn btn-block btn-primary">Add Carrinho </a>
                 </figcaption>
             </figure>
         </div> <!-- col.// -->

@@ -8,11 +8,12 @@
 
 <!-- ============================ COMPONENT 1 ================================= -->
 {% if not carrinho_items %}
-	<h2>Seu carrinho está vazio.</h2>
+	<h2 class="text-center">Seu carrinho está vazio.</h2>
 	<br> 
 	<div class="text-center">
-		<a class="btn btn-primary" href="{% url 'loja' %}> Continue Comprando</a>
+		<a class="btn btn-primary" href="{% url 'loja' %}">Continuar Comprando</a>
 	</div>
+	<br><br>
 <!--Mensagem-->
 {% else %}
 

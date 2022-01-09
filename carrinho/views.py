@@ -50,6 +50,15 @@ def remove_carrinho(request, produto_id):
         carrinho_item_dec.delete()
     return redirect('carrinho')
 
+#3 
+def remove_carrinho_item(request, produto_id):
+    carrinho = Carrinho.objects.get(carro_id=_carrinho_id(request))
+    produto = get_object_or_404(Produto, id=produto_id)
+    carrinho_item = CarrinhoItem.objects.get(produto=produto, carrinho=carrinho)
+    carrinho_item.delete()
+    return redirect('carrinho')
+
+
 
 #1
 def carrinho(request, total=0, quantidade=0, carrinho_items=None):

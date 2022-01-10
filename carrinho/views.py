@@ -15,6 +15,10 @@ def _carrinho_id(request):
 
 #2
 def add_carrinho(request, produto_id):
+    #4
+    color = request.GET['color']
+    size = request.GET['size']
+
     produto = Produto.objects.get(id=produto_id) # busca o produto
     try:
         carrinho = Carrinho.objects.get(carro_id=_carrinho_id(request)) # busca o carrinho usando o carro_id presente na sessão

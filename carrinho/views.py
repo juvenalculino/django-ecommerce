@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from django.core.exceptions import ObjectDoesNotExist
 from loja.models import Produto
 from .models import Carrinho, CarrinhoItem
 # Create your views here.
@@ -63,6 +64,8 @@ def remove_carrinho_item(request, produto_id):
 #1
 def carrinho(request, total=0, quantidade=0, carrinho_items=None):
     try:
+        taxa = 0
+        total_geral = 0
         carrinho = Carrinho.objects.get(carro_id=_carrinho_id(request))
         carrinho_items = CarrinhoItem.objects.filter(carrinho=carrinho, is_active=True)
         for carrinho_item in carrinho_items:
@@ -70,8 +73,8 @@ def carrinho(request, total=0, quantidade=0, carrinho_items=None):
             quantidade += carrinho_item.quantidade
         taxa = (2 * total) / 100
         total_geral = total + taxa
-    except Exception as e:
-        raise e
+    except ObjectDoesNotExist:
+        pass
     context = {
         'total': total,
         'quantidade': quantidade,

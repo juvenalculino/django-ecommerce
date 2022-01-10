@@ -21,7 +21,7 @@ def loja(request, categoria_slug=None):
         
     else:
 
-        produtos = Produto.objects.all().filter(e_disponivel=True)
+        produtos = Produto.objects.all().filter(e_disponivel=True).order_by('id')
         #5
         paginator = Paginator(produtos, 3)
         page = request.GET.get('page')

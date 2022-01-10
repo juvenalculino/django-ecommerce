@@ -6,7 +6,12 @@
 
 <section class="section-pagetop bg">
     <div class="container">
-        <h2 class="title-page">Nossa Loja</h2>
+        {% if 'buscar' in request.path %}
+        <!--Resultado da busca-->
+            <h2 class="title-page text-center">Resultado da busca</h2>
+        {% else %}
+            <h2 class="title-page">Nossa Loja</h2>
+        {% endif %}
     </div>
 </section>
 
@@ -120,15 +125,17 @@
     
         </aside> <!-- col.// -->
         <main class="col-md-9">
-    
-    <header class="border-bottom mb-4 pb-3">
-            <div class="form-inline">
-                <span class="mr-md-auto">Encontrado {{contar_produto}} Items</span>
-                
-            </div>
-    </header><!-- sect-heading -->
+    {% if produtos %}
+        <header class="border-bottom mb-4 pb-3">
+                <div class="form-inline">
+                    <span class="mr-md-auto">Encontrado {{contar_produto}} Items</span>
+                    
+                </div>
+        </header><!-- sect-heading -->
+    {% endif %}
     
     <div class="row">
+        {% if produtos %}
         {% for produto in produtos %}
         <div class="col-md-4">
             <figure class="card card-product-grid">
@@ -150,6 +157,11 @@
             </figure>
         </div> <!-- col.// -->
         {% endfor %}
+        {% else %}
+        <div>
+            <h3>Não foram encontrado resultados.Tente novamente</h3>
+        </div>
+        {% endif %}
     
 
     </div> <!-- row end.// -->

@@ -1,10 +1,11 @@
-from django.http import HttpResponse
+
 from django.shortcuts import get_object_or_404, render
 from .models import Produto
 from categoria.models import Categoria
 from carrinho.models import CarrinhoItem
 from carrinho.views import _carrinho_id
 from django.core.paginator import Paginator
+from django.db.models import Q
 # Create your views here.
 
 def loja(request, categoria_slug=None):
@@ -51,4 +52,13 @@ def detalhe_produto(request, categoria_slug, produto_slug):
 
 
 def buscar(request):
-    return render(request, 'loja/loja.html')
+    if 'keyword' in request.GET:
+        keyword = request.GET['keyword']
+        if keyword:
+            produtos = Produto.objects.order_by('-data_criacao').filter(Q(nome_produto__icontains=keyword) | Q(descricao__icontains=keyword))
+            contar_produto = produtos.count()
+    context = {
+        'produtos': produtos,
+        'contar_produto': contar_produto
+    }
+    return render(request, 'loja/loja.html', context)

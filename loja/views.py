@@ -4,6 +4,7 @@ from .models import Produto
 from categoria.models import Categoria
 from carrinho.models import CarrinhoItem
 from carrinho.views import _carrinho_id
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 # Create your views here.
 
 def loja(request, categoria_slug=None):
@@ -14,12 +15,20 @@ def loja(request, categoria_slug=None):
         categorias = get_object_or_404(Categoria, slug=categoria_slug)
         produtos = Produto.objects.filter(categoria=categorias, e_disponivel=True)
         contar_produto = produtos.count()
+        paginator = Paginator(produtos, 3)
+        page = request.GET.get('page')
+        page_produto = paginator.get_page(page)
+        
     else:
 
         produtos = Produto.objects.all().filter(e_disponivel=True)
+        #5
+        paginator = Paginator(produtos, 3)
+        page = request.GET.get('page')
+        page_produto = paginator.get_page(page)
         contar_produto = produtos.count()
     context = {
-        'produtos': produtos,
+        'produtos': page_produto,
         'contar_produto': contar_produto,
     }
     return render(request, 'loja/loja.html', context)

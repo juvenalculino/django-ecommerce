@@ -30,11 +30,12 @@ def detalhe_produto(request, categoria_slug, produto_slug):
         unico_produto = Produto.objects.get(categoria__slug=categoria_slug, slug=produto_slug)
         #4
         no_carro = CarrinhoItem.objects.filter(carrinho__carro_id=_carrinho_id(request), produto=unico_produto).exists()
-        return HttpResponse(no_carro)
-        exit()
+        """return HttpResponse(no_carro)
+        exit()"""
     except Exception as e:
         raise e
     context = {
         'unico_produto': unico_produto,
+        'no_carro': no_carro,
     }
     return render(request, 'loja/detalhe_produto.html', context)

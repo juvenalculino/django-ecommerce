@@ -70,7 +70,12 @@
 	{% if unico_produto.estoque <= 0 %}
 		<h5> Não há em estoque </h5>
 	{% else %}
+		{% if no_carro %}
+			<!--adicionado ao carrinho-->
+			<a href="#" class="btn  btn-success"> <span class="text">Adicionado ao carrinho</span> <i class="fas fa-check"></i>  </a>
+		{% else %}
 		<a href="{% url 'add_cart' unico_produto.id %}" class="btn  btn-primary"> <span class="text">Adicionar carro</span> <i class="fas fa-shopping-cart"></i>  </a>
+		{% endif %}
 	{% endif %}
 </article> <!-- product-info-aside .// -->
 		</main> <!-- col.// -->

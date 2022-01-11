@@ -1,5 +1,5 @@
 from django.db import models
-from loja.models import Produto
+from loja.models import Produto, Variacao
 
 # Create your models here.
 class Carrinho(models.Model):
@@ -11,6 +11,7 @@ class Carrinho(models.Model):
 
 class CarrinhoItem(models.Model):
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
+    variacoes = models.ManyToManyField(Variacao, blank=True)
     carrinho = models.ForeignKey(Carrinho, on_delete=models.CASCADE)
     quantidade = models.IntegerField()
     is_active = models.BooleanField(default=True)
@@ -20,5 +21,5 @@ class CarrinhoItem(models.Model):
         return self.produto.preco * self.quantidade
 
 
-    def __str__(self):
+    def __unicode__(self):
         return self.produto

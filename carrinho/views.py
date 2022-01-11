@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
-from loja.models import Produto
+from loja.models import Produto, Variacao
 from .models import Carrinho, CarrinhoItem
 from django.core.exceptions import ObjectDoesNotExist
 # Create your views here.
@@ -17,12 +17,20 @@ def _carrinho_id(request):
 #2
 def add_carrinho(request, produto_id):
     #4
-    
-    color = request.GET.get('color')
-    return HttpResponse(color)
-    exit()
-
     produto = Produto.objects.get(id=produto_id) # busca o produto
+    variacao_produto = []
+    if request.method == 'POST':
+        for item in request.POST:
+            key = item
+            value = request.POST[key]
+
+            try:
+                variacao = Variacao.objects.get(produto=produto, variacao_categoria__iexact=key, variacao_valor__iexact=value)
+                variacao_produto.append(variacao)
+            except:
+                pass
+
+    
     try:
         carrinho = Carrinho.objects.get(carro_id=_carrinho_id(request)) # busca o carrinho usando o carro_id presente na sessão
     except Carrinho.DoesNotExist:

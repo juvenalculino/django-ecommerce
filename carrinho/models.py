@@ -1,5 +1,6 @@
 from django.db import models
 from loja.models import Produto, Variacao
+from contas.models import Contas
 
 # Create your models here.
 class Carrinho(models.Model):
@@ -10,9 +11,10 @@ class Carrinho(models.Model):
         return self.carro_id
 
 class CarrinhoItem(models.Model):
+    user = models.ForeignKey(Contas, on_delete=models.CASCADE, null=True)
     produto = models.ForeignKey(Produto, on_delete=models.CASCADE)
     variacoes = models.ManyToManyField(Variacao, blank=True)
-    carrinho = models.ForeignKey(Carrinho, on_delete=models.CASCADE)
+    carrinho = models.ForeignKey(Carrinho, on_delete=models.CASCADE, null=True)
     quantidade = models.IntegerField()
     is_active = models.BooleanField(default=True)
 

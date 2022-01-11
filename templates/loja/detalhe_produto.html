@@ -17,6 +17,7 @@
 		</aside>
 		<main class="col-md-6 border-left">
 			<form action="{% url 'add_cart' unico_produto.id %}" method="GET">
+				{% csrf_token %}
 		
 			
 				<article class="content-body">
@@ -34,24 +35,24 @@
 					<div class="row">
 						<div class="item-option-select">
 							<h6>Selecionar Cor</h6>
-							<select name="color" class="form-control">
-								<option value="red">Vermelho</option>
-								<option value="red">Amarelo</option>
-								<option value="red">Verde</option>
-								<option value="red">Azul</option>
-								<option value="red">Preto</option>
+							<select name="color" class="form-control" required>
+								<option value="" disabled selected>Selecionar Cor</option>
+								{% for i in unico_produto.variacao_set.colors %}
+								<option value="{{ i.variacao_valor | lower }}">{{ i.variacao_valor | capfirst }}</option>
+                                {% endfor %}
+								
 							</select>
 						</div>
 					</div> <!-- row.// -->
 					<div class="row">
 						<div class="item-option-select">
 							<h6>Selecionar Tamanho</h6>
-							<select name="size" class="form-control">
-								<option value="red">Pequeno</option>
-								<option value="red">Médio</option>
-								<option value="red">Grande</option>
-								<option value="red">Super BB</option>
-								<option value="red">Super BBB</option>
+							<select name="size" class="form-control" required>
+								<option value="" disabled selected>Selecionar Tamanho</option>
+								{% for i in unico_produto.variacao_set.sizes %}
+								<option value="{{ i.variacao_valor | lower }}">{{ i.variacao_valor | capfirst }}</option>
+                                {% endfor %}
+								
 							</select>
 						</div>
 					</div> <!-- row.// -->

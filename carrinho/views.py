@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from django.http import HttpResponse
 from loja.models import Produto
 from .models import Carrinho, CarrinhoItem
 from django.core.exceptions import ObjectDoesNotExist
@@ -16,8 +17,10 @@ def _carrinho_id(request):
 #2
 def add_carrinho(request, produto_id):
     #4
-    color = request.GET['color']
-    size = request.GET['size']
+    
+    color = request.GET.get('color')
+    return HttpResponse(color)
+    exit()
 
     produto = Produto.objects.get(id=produto_id) # busca o produto
     try:

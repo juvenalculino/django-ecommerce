@@ -12,7 +12,7 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
 
-
+from django.http import HttpResponse
 # Create your views here.
 def register(request):
     if request.method == 'POST':
@@ -28,20 +28,25 @@ def register(request):
             user = Contas.objects.create_user(nome=nome, sobrenome=sobrenome, email=email, username=username, password=password)
             user.telefone = telefone
             user.save()
+            
             # 12/01/22 14:21 - User Activation
-            current_site = get_current_site(request)
-            mail_subject = 'Please activate account'
-            message = render_to_string('contas/verificacao_conta.html', {
+            current_site = get_current_site(request=request)
+            mail_subject = 'Activate your blog account.'
+            message = render_to_string('contas/email_ativo.html', {
                 'user': user,
-                'domain': current_site,
+                'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_tokes(user),
+                'token': default_token_generator.make_token(user)
             })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to[to_email])
+            send_email = EmailMessage(mail_subject, message, to=[email])
             send_email.send()
-            messages.success(request, 'Registro feito com sucesso!')
-            return redirect('register')
+            #messages.success(
+            #    request=request,
+            #    message="Please confirm your email address to complete the registration"
+            #)
+            return redirect('contas/login/?command=verification&email='+email)
+        else:
+            messages.error(request=request, message='Register failes!')
     else:
         form = ResgitrationForm()
     context = {
@@ -74,5 +79,19 @@ def logout(request):
 
 
 
-def activate(request):
-    return 
+def activate(request, uidb64, token):#uidb64, token
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Contas.objects.get(pk=uid)
+    except Exception:
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(
+            request=request, message="Your account is activated, please login!")
+        return render(request, 'contas/login.html')
+    else:
+        messages.error(request=request, message="Activation link is invalid!")
+        return redirect('home')

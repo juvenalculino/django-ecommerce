@@ -5,6 +5,15 @@
 {% block content%}
 
 <!-- ========================= SECTION CONTENT ========================= -->
+{% if request.GET.command  == 'verification' %}
+<div class="container mx-auto alert-info" role="alert" style="max-width: 380px; margin-top:100px;">
+    Thank you for register with us. We have sent you a verification email to your email address. [request.GET.email] 
+    <br><br>
+    Already verified! <a href="{% url 'login' %}">Login</a>
+</div>
+
+{% endif %}
+
 <section class="section-conten padding-y" style="min-height:84vh">
 
     <!-- ============================ COMPONENT LOGIN   ================================= -->

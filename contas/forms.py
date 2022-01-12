@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm, CharField
 from django.forms.widgets import PasswordInput
 
@@ -16,6 +17,20 @@ class ResgitrationForm(ModelForm):
         model = Contas
         fields = ['nome', 'sobrenome', 'telefone', 'email', 'password']
     
+    
+    
+    #3
+    def clean(self):
+        cleaned_data = super(ResgitrationForm, self).clean()
+        password = cleaned_data.get('password')
+        confirm_password = cleaned_data.get('confirm_password')
+        if password != confirm_password:
+            raise ValidationError(
+                'Senha não são iguais! Tente novamente.'
+            )
+
+
+    #2
     def __init__(self, *args, **kwargs):
         super(ResgitrationForm, self).__init__(*args, **kwargs)
         self.fields['nome'].widget.attrs['placeholder'] = 'Seu Nome'
@@ -24,6 +39,8 @@ class ResgitrationForm(ModelForm):
         self.fields['telefone'].widget.attrs['placeholder'] = 'Seu Telefone'
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
+
+    
 
 
 '''

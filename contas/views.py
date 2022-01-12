@@ -4,6 +4,15 @@ from .models import Contas
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 
+# 12/01/22 14:49 - User Activation imports
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
+
+
 # Create your views here.
 def register(request):
     if request.method == 'POST':
@@ -19,6 +28,18 @@ def register(request):
             user = Contas.objects.create_user(nome=nome, sobrenome=sobrenome, email=email, username=username, password=password)
             user.telefone = telefone
             user.save()
+            # 12/01/22 14:21 - User Activation
+            current_site = get_current_site(request)
+            mail_subject = 'Please activate account'
+            message = render_to_string('contas/verificacao_conta.html', {
+                'user': user,
+                'domain': current_site,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_tokes(user),
+            })
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to[to_email])
+            send_email.send()
             messages.success(request, 'Registro feito com sucesso!')
             return redirect('register')
     else:
@@ -50,3 +71,8 @@ def logout(request):
     auth.logout(request)
     messages.success(request, 'Você saiu do sistema!')
     return redirect('login')
+
+
+
+def activate(request):
+    return 

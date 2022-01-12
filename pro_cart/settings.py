@@ -146,3 +146,10 @@ MESSAGE_TAGS = {
     messages.SUCCESS: 'success',
     messages.DEBUG: 'secondary'
 }
+
+# SMTP Configuration
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USER_TLS = True

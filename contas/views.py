@@ -1,18 +1,24 @@
+from re import split
+from carrinho.models import Carrinho, CarrinhoItem
 from django.shortcuts import render, redirect
-from .forms import ResgitrationForm
-from .models import Contas
 from django.contrib import messages, auth
-from django.contrib.auth.decorators import login_required
-
 # 12/01/22 14:49 - User Activation imports
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
-from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import EmailMessage
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import default_token_generator
 
-from django.http import HttpResponse
+from .forms import ResgitrationForm
+from .models import Contas
+
+from carrinho.views import _carrinho_id
+
+import requests
+
+
 # Create your views here.
 def register(request):
     if request.method == 'POST':
@@ -22,8 +28,9 @@ def register(request):
             sobrenome = form.cleaned_data['sobrenome']
             email = form.cleaned_data['email']
             telefone = form.cleaned_data['telefone']
-            username = email.split('@')[0]
             password = form.cleaned_data['password']
+            username = email.split('@')[0]
+
             # Vamos pasar aqui os dados que tem na nossa função do smodels def create_user(self, nome, sobrenome, username, email, password=None):
             user = Contas.objects.create_user(nome=nome, sobrenome=sobrenome, email=email, username=username, password=password)
             user.telefone = telefone
@@ -32,7 +39,7 @@ def register(request):
             # 12/01/22 14:21 - User Activation
             current_site = get_current_site(request=request)
             mail_subject = 'Activate your blog account.'
-            message = render_to_string('contas/email_ativo.html', {
+            message = render_to_string('contas/active_email.html', {
                 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -41,13 +48,13 @@ def register(request):
             to_email = email
             send_email = EmailMessage(mail_subject, message, to=[to_email])
             send_email.send()
-            #messages.success(
-            #    request=request,
-            #    message="Please confirm your email address to complete the registration"
-            #)
-            return redirect('contas/login/?command=verification&email='+email)
+            messages.success(
+                request=request,
+                message="Please confirm your email address to complete the registration"
+            )
+            return redirect('register')
         else:
-            messages.error(request=request, message='Register failes!')
+            messages.error(request=request, message='Register failed!')
     else:
         form = ResgitrationForm()
     context = {
@@ -58,19 +65,62 @@ def register(request):
 
 def login(request):
     if request.method == 'POST':
-        email = request.POST['email']
-        password = request.POST['password']
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
         user = auth.authenticate(email=email, password=password)
 
         if user is not None:
-            auth.login(request, user)
-            messages.success(request, 'Agora você está logado!')
-            return redirect('dashboard')
+            try:
+                carrinho = Carrinho.objects.get(cart_id=_carrinho_id(request))
+                carrinho_items = CarrinhoItem.objects.filter(carrinho=carrinho)
+                if carrinho_items.exists():
+                    variacao_produto = []
+                    for carrihno_item in carrinho_items:
+                        variacoes = carrihno_item.variacoes.all()
+                        variacao_produto.append(list(variacoes))
+                        # cart_item.user = user
+                        # cart_item.save()
+                    carrinho_items = CarrinhoItem.objects.filter(user=user)
+                    existe_lista_variacoes = [list(item.variacoes.all()) for item in carrinho_items]
+                    id = [item.id for item in carrinho_items]
+
+                    for product in variacao_produto:
+                        if product in existe_lista_variacoes:
+                            index = existe_lista_variacoes.index(product)
+                            item_id = id[index]
+                            item = CarrinhoItem.objects.get(id=item_id)
+                            item.quantity += 1
+                            item.user = user
+                            item.save()
+                        else:
+                            cart_items = CarrinhoItem.objects.filter(cart=cart)
+                            for item in cart_items:
+                                item.user = user
+                                item.save()
+            except Exception:
+                pass
+            auth.login(request=request, user=user)
+            messages.success(request=request, message="Login successful!")
+
+            url = request.META.get('HTTP_REFERER')
+            try:
+                query = requests.utils.urlparse(url).query
+                params = dict(x.split("=") for x in query.split("&"))
+                if "next" in params:
+                    next_page = params["next"]
+                    return redirect(next_page)
+            except Exception:
+                return redirect('dashboard')
         else:
-            messages.error(request, 'Erro ao fazer login')
-            return redirect('login')
-    return render(request, 'contas/login.html')
+            messages.error(request=request, message="Login failed!")
+    context = {
+        'email': email if 'email' in locals() else '',
+        'password': password if 'password' in locals() else '',
+    }
+    return render(request, 'contas/login.html', context=context)
+
+
 
 @login_required(login_url='login')
 def logout(request):
@@ -105,7 +155,7 @@ def dashboard(request):
 
 
 # 13/01/22 09:20
-def forgotpassword(request):
+def forgotPassword(request):
     if request.method == 'POST':
         email = request.POST['email']
         # Verificando se email existe
@@ -154,7 +204,7 @@ def reset_password_validate(request, uidb64, token):
 
 
 
-def resetpassword(request):
+def reset_password(request):
     if request.method == 'POST':
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirm_password')
@@ -168,4 +218,4 @@ def resetpassword(request):
             return redirect('login')
         else:
             messages.error(request, message="Password do not match!")
-    return render(request, 'contas/resetpassword.html')
+    return render(request, 'contas/reset_password.html')

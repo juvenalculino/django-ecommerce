@@ -36,9 +36,10 @@ def register(request):
                 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user)
+                'token': default_token_generator.make_token(user),
             })
-            send_email = EmailMessage(mail_subject, message, to=[email])
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
             send_email.send()
             #messages.success(
             #    request=request,
@@ -100,3 +101,71 @@ def activate(request, uidb64, token):#uidb64, token
 @login_required(login_url='login')
 def dashboard(request):
     return render(request, 'contas/dashboard.html')
+
+
+
+# 13/01/22 09:20
+def forgotpassword(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        # Verificando se email existe
+        if Contas.objects.filter(email=email).exists():
+            # Verificando se o email é exato
+            user = Contas.objects.get(email__iexact=email)
+
+            # 13/01/22 09:27 - Reset password email
+            current_site = get_current_site(request=request)
+            mail_subject = 'Reset Your Password!.'
+            message = render_to_string('contas/reset_password_email.html', {
+                'user': user,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': default_token_generator.make_token(user),
+            })
+            to_email = email
+            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email.send()
+
+            messages.success(request, 'Email enviado para sua conta. Verifique o link de alteração de senha!')
+            return redirect('login')
+
+        else:
+            messages.error(request, 'Conta não existe!')
+            return redirect('forgotpassword')
+    return render(request, 'contas/forgotpassword.html')
+
+
+
+# 13/01/22 09:20 - Função para validar o envio de email
+def reset_password_validate(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = Contas.objects.get(pk=uid)
+    except Exception:
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        request.session['uid'] = uid
+        messages.info(request=request, message='Please reset your password')
+        return redirect('login')
+    else:
+        messages.error(request=request, message="This link has been expired!")
+        return redirect('home')
+
+
+
+def resetpassword(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password == confirm_password:
+            uid = request.session.get('uid')
+            user = Contas.objects.get(pk=uid)
+            user.set_password(password)
+            user.save()
+            messages.success(request, message="Password reset successful!")
+            return redirect('login')
+        else:
+            messages.error(request, message="Password do not match!")
+    return render(request, 'contas/resetpassword.html')

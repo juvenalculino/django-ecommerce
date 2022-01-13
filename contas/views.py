@@ -64,8 +64,8 @@ def login(request):
 
         if user is not None:
             auth.login(request, user)
-            #messages.success(request, 'Agora você está logado!')
-            return redirect('home')
+            messages.success(request, 'Agora você está logado!')
+            return redirect('dashboard')
         else:
             messages.error(request, 'Erro ao fazer login')
             return redirect('login')
@@ -74,7 +74,7 @@ def login(request):
 @login_required(login_url='login')
 def logout(request):
     auth.logout(request)
-    messages.success(request, 'Você saiu do sistema!')
+    messages.info(request, 'Você saiu do sistema!')
     return redirect('login')
 
 
@@ -95,3 +95,8 @@ def activate(request, uidb64, token):#uidb64, token
     else:
         messages.error(request=request, message="Activation link is invalid!")
         return redirect('home')
+
+
+@login_required(login_url='login')
+def dashboard(request):
+    return render(request, 'contas/dashboard.html')

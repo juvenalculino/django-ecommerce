@@ -147,6 +147,7 @@ MESSAGE_TAGS = {
     messages.DEBUG: 'secondary'
 }
 
+
 # SMTP Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

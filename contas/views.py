@@ -156,33 +156,31 @@ def dashboard(request):
 
 # 13/01/22 09:20
 def forgotPassword(request):
-    if request.method == 'POST':
-        email = request.POST['email']
-        # Verificando se email existe
-        if Contas.objects.filter(email=email).exists():
-            # Verificando se o email é exato
-            user = Contas.objects.get(email__iexact=email)
+    try:
+        if request.method == 'POST':
+            email = request.POST.get('email')
+            user = Contas.objects.get(email__exact=email)
 
-            # 13/01/22 09:27 - Reset password email
             current_site = get_current_site(request=request)
-            mail_subject = 'Reset Your Password!.'
+            mail_subject = 'Reset your password'
             message = render_to_string('contas/reset_password_email.html', {
                 'user': user,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': default_token_generator.make_token(user),
+                'token': default_token_generator.make_token(user)
             })
-            to_email = email
-            send_email = EmailMessage(mail_subject, message, to=[to_email])
+            send_email = EmailMessage(mail_subject, message, to=[email])
             send_email.send()
 
-            messages.success(request, 'Email enviado para sua conta. Verifique o link de alteração de senha!')
-            return redirect('login')
-
-        else:
-            messages.error(request, 'Conta não existe!')
-            return redirect('forgotpassword')
-    return render(request, 'contas/forgotpassword.html')
+            messages.success(
+                request=request, message="Password reset email has been sent to your email address")
+    except Exception:
+        messages.error(request=request, message="Account does not exist!")
+    finally:
+        context = {
+            'email': email if 'email' in locals() else '',
+        }
+        return render(request, "contas/forgotPassword.html", context=context)
 
 
 

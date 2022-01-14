@@ -171,3 +171,29 @@ def carrinho(request, total=0, quantidade=0, carrinho_items=None):
         'total_geral': total_geral if 'taxa' in locals() else 0,
     }
     return render(request, 'loja/carrinho.html', context)
+
+
+def checkout(request, total=0, quantidade=0, carrinho_items=None):
+    try:
+        if request.user.is_authenticated:
+            carrinho_items = CarrinhoItem.objects.filter(user=request.user, is_active=True)
+        else:
+            carrinho = Carrinho.objects.get(carro_id=_carrinho_id(request=request))
+            carrinho_items = CarrinhoItem.objects.filter(carrinho=carrinho, is_active=True)
+
+        
+        for carrinho_item in carrinho_items:
+            total += (carrinho_item.produto.preco * carrinho_item.quantidade)
+            quantidade += carrinho_item.quantidade
+        taxa = (total * 2) / 100
+        total_geral = total + taxa
+    except ObjectDoesNotExist:
+        pass
+    context = {
+        'total': total,
+        'quantidade': quantidade,
+        'carrinho_items': carrinho_items,
+        'taxa': taxa if 'taxa' in locals() else "",
+        'total_geral': total_geral if 'taxa' in locals() else 0,
+    }
+    return render(request, 'loja/checkout.html', context)
